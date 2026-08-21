@@ -11,8 +11,6 @@
 
   // ---- Mapeamento de categorias ----
   const CATEGORY_MAP = {
-    // Ordem de prioridade: específicos primeiro, depois padrões
-    // Domínios conhecidos
     'mega.nz': { nome: 'Mega', icone: '📁' },
     'gofile.io': { nome: 'GoFile', icone: '☁' },
     'pixeldrain.com': { nome: 'PixelDrain', icone: '🖼' },
@@ -20,55 +18,37 @@
     'cyberdrop.cr': { nome: 'CyberDrop', icone: '📂' },
   };
 
-  // Função para detectar categoria com base na URL
   function detectCategory(url) {
     const lower = url.toLowerCase();
 
-    // 1. CDN Bunkr (cdn.bunkr.ru, cdn8.bunkr.ru, etc.)
     if (/cdn\d*\.bunkr\.ru/.test(lower)) {
       return { nome: 'CDN Bunkr MP4', icone: '🎥' };
     }
-
-    // 2. Bunkr com /a/ (álbuns)
     if (/bunkr\.[^\/]+\/a\//.test(lower)) {
       return { nome: 'Bunkr Álbuns', icone: '📦' };
     }
-    // Bunkr com /v/ (vídeos)
     if (/bunkr\.[^\/]+\/v\//.test(lower)) {
       return { nome: 'Bunkr Vídeos', icone: '🎬' };
     }
-    // Bunkr com /f/ (arquivos)
     if (/bunkr\.[^\/]+\/f\//.test(lower)) {
       return { nome: 'Bunkr Arquivos', icone: '📄' };
     }
-    // Qualquer outro bunkr (sem /a/, /v/, /f/) - pode ser álbum padrão? Mas já pega os de cima.
-    // Se for bunkr.xxx sem subpasta, considerar como álbum? Vamos tratar como Outros? Melhor como Bunkr genérico.
     if (/bunkr\.[^\/]+/.test(lower)) {
       return { nome: 'Bunkr (Genérico)', icone: '📦' };
     }
-
-    // 3. Vídeos .mp4 (qualquer domínio, exceto se já capturado como CDN Bunkr)
     if (lower.endsWith('.mp4')) {
       return { nome: 'Vídeos MP4', icone: '🎥' };
     }
-
-    // 4. Domínios conhecidos (Mega, GoFile, etc.)
     for (const [domain, info] of Object.entries(CATEGORY_MAP)) {
       if (lower.includes(domain)) {
         return info;
       }
     }
-
-    // 5. Outros
     return { nome: 'Outros', icone: '🌐' };
   }
 
-  // ---- Processamento dos links ----
   function processLinks(rawLinks) {
-    // 1. Remover duplicatas (usando Set)
     const unique = [...new Set(rawLinks)];
-
-    // 2. Agrupar por categoria
     const groups = new Map();
     unique.forEach(url => {
       const cat = detectCategory(url);
@@ -79,51 +59,47 @@
       groups.get(key).links.push(url);
     });
 
-    // 3. Ordenar links dentro de cada categoria (alfabético)
     for (const [key, group] of groups) {
       group.links.sort((a, b) => a.localeCompare(b));
     }
 
-    // 4. Ordenar categorias por nome
+    // ⬇️ ORDENAÇÃO PERSONALIZADA: MEGA EM PRIMEIRO
     const sortedGroups = Array.from(groups.entries())
-      .sort((a, b) => a[0].localeCompare(b[0]))
+      .sort((a, b) => {
+        const nomeA = a[0];
+        const nomeB = b[0];
+        if (nomeA === 'Mega') return -1;
+        if (nomeB === 'Mega') return 1;
+        return nomeA.localeCompare(nomeB);
+      })
       .map(([_, value]) => value);
 
     return sortedGroups;
   }
 
-  // ---- Renderização ----
   function render(groups, filterText = '') {
     categoriesContainer.innerHTML = '';
-
     let total = 0;
     const stats = {};
 
     groups.forEach(group => {
       const links = group.links;
-      // Filtrar links pelo texto (busca)
       let filteredLinks = links;
       if (filterText.trim() !== '') {
         const term = filterText.toLowerCase().trim();
         filteredLinks = links.filter(url => url.toLowerCase().includes(term));
       }
-
-      if (filteredLinks.length === 0) {
-        // Se não houver links após filtro, não exibe a categoria (a menos que queira mostrar vazio?)
-        return;
-      }
+      if (filteredLinks.length === 0) return;
 
       total += filteredLinks.length;
       stats[group.nome] = (stats[group.nome] || 0) + filteredLinks.length;
 
-      // Criar elemento da categoria
       const categoriaDiv = document.createElement('div');
       categoriaDiv.className = 'categoria';
 
-      // Cabeçalho (clique para expandir)
       const header = document.createElement('div');
       header.className = 'categoria-header';
-      header.dataset.expanded = 'false'; // inicialmente fechado
+      header.dataset.expanded = 'false';
 
       const tituloSpan = document.createElement('span');
       tituloSpan.className = 'titulo';
@@ -136,9 +112,8 @@
       header.appendChild(tituloSpan);
       header.appendChild(setaSpan);
 
-      // Lista de links
       const listaDiv = document.createElement('div');
-      listaDiv.className = 'categoria-lista fechada'; // começa fechada
+      listaDiv.className = 'categoria-lista fechada';
 
       filteredLinks.forEach(url => {
         const card = document.createElement('div');
@@ -173,7 +148,6 @@
         listaDiv.appendChild(card);
       });
 
-      // Evento de toggle no header
       header.addEventListener('click', function(e) {
         const isExpanded = this.dataset.expanded === 'true';
         const lista = this.nextElementSibling;
@@ -196,12 +170,14 @@
       categoriesContainer.appendChild(categoriaDiv);
     });
 
-    // Atualizar estatísticas e rodapé
     totalLinksSpan.textContent = total;
     totalRodapeSpan.textContent = total;
 
-    // Detalhes por categoria (apenas as que aparecem após filtro)
-    const statsEntries = Object.entries(stats).sort((a, b) => a[0].localeCompare(b[0]));
+    const statsEntries = Object.entries(stats).sort((a, b) => {
+      if (a[0] === 'Mega') return -1;
+      if (b[0] === 'Mega') return 1;
+      return a[0].localeCompare(b[0]);
+    });
     let statsHTML = '';
     statsEntries.forEach(([nome, count]) => {
       statsHTML += `<span>${nome} (${count})</span>`;
@@ -209,7 +185,6 @@
     detalhesCategoriasSpan.innerHTML = statsHTML;
   }
 
-  // ---- Expansão/Recolhimento global ----
   function expandirTodos() {
     document.querySelectorAll('.categoria-header').forEach(header => {
       const lista = header.nextElementSibling;
@@ -236,42 +211,27 @@
     });
   }
 
-  // ---- Inicialização ----
   function init() {
-    // Verificar se a variável 'links' existe (do links.js)
     if (typeof links === 'undefined' || !Array.isArray(links)) {
       console.error('Arquivo links.js não carregado ou variável "links" não encontrada.');
       return;
     }
-
-    // Processar links
     const groups = processLinks(links);
-
-    // Renderizar
     render(groups, '');
-
-    // Atualizar data
     const now = new Date();
     ultimaAtualizacaoSpan.textContent = now.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
-    // Evento de pesquisa
     searchInput.addEventListener('input', function() {
-      const filter = this.value;
-      render(groups, filter);
+      render(groups, this.value);
     });
 
-    // Botões expandir/recolher
     document.getElementById('expandirTodos').addEventListener('click', expandirTodos);
     document.getElementById('recolherTodos').addEventListener('click', recolherTodos);
-
-    // Iniciar com todas as categorias fechadas (padrão já aplicado)
   }
 
-  // Executar quando DOM estiver pronto
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
     init();
   }
-
 })();
