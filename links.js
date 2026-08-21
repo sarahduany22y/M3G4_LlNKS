@@ -1,3 +1,5 @@
+console.log("links.js carregado!");
+
 const links = [
   "https://bunkr.cr/a/yRwhMWEH",
   "https://bunkr.cr/a/lNOfzAge",
@@ -211,3 +213,5 @@ const links = [
   "https://www.erome.com/a/bCfT8l5c",
   "https://mega.nz/folder/ImNB3bjK#Ivz2uQYrfr3WPEb9I_KUtw"
 ];
+
+console.log("links carregado com " + links.length + " links.");
