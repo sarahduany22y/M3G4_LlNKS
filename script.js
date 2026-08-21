@@ -1,7 +1,6 @@
 (function() {
   "use strict";
 
-  // ---- DOM references ----
   const categoriesContainer = document.getElementById('categories');
   const searchInput = document.getElementById('searchInput');
   const totalLinksSpan = document.getElementById('totalLinks');
@@ -9,10 +8,9 @@
   const detalhesCategoriasSpan = document.getElementById('detalhesCategorias');
   const ultimaAtualizacaoSpan = document.getElementById('ultimaAtualizacao');
 
-  // ---- Verificação: a variável 'links' existe? ----
+  // ---- Verificação de segurança ----
   if (typeof links === 'undefined' || !Array.isArray(links)) {
     console.error('ERRO: A variável "links" não está definida ou não é um array. Verifique o arquivo links.js.');
-    // Exibe mensagem amigável na tela
     categoriesContainer.innerHTML = `
       <div style="text-align:center; padding:40px; color:#f85149; background:#161b22; border-radius:12px; border:1px solid #f85149;">
         <strong>⚠️ Erro ao carregar os links.</strong><br>
@@ -33,7 +31,6 @@
     'cyberdrop.cr': { nome: 'CyberDrop', icone: '📂' },
   };
 
-  // ---- Detecção de categoria ----
   function detectCategory(url) {
     const lower = url.toLowerCase();
 
@@ -42,7 +39,6 @@
       return { nome: 'Erome', icone: '🎬', especial: 'erome' };
     }
 
-    // CDN Bunkr
     if (/cdn\d*\.bunkr\.ru/.test(lower)) {
       return { nome: 'CDN Bunkr MP4', icone: '🎥' };
     }
@@ -69,7 +65,6 @@
     return { nome: 'Outros', icone: '🌐' };
   }
 
-  // ---- Processamento ----
   function processLinks(rawLinks) {
     const unique = [...new Set(rawLinks)];
     const groups = new Map();
@@ -87,12 +82,10 @@
       groups.get(key).links.push(url);
     });
 
-    // Ordena links dentro de cada categoria
     for (const [key, group] of groups) {
       group.links.sort((a, b) => a.localeCompare(b));
     }
 
-    // Ordena categorias: Mega primeiro, depois alfabético
     const sortedGroups = Array.from(groups.entries())
       .sort((a, b) => {
         const nomeA = a[0];
@@ -106,7 +99,6 @@
     return sortedGroups;
   }
 
-  // ---- Renderização ----
   function render(groups, filterText = '') {
     categoriesContainer.innerHTML = '';
     let total = 0;
@@ -167,7 +159,6 @@
         const acaoDiv = document.createElement('div');
         acaoDiv.className = 'link-acao';
 
-        // Especial: Erome
         if (group.especial === 'erome') {
           const btn = document.createElement('button');
           btn.textContent = '🎬 Amador - Erome';
@@ -195,7 +186,6 @@
         listaDiv.appendChild(card);
       });
 
-      // Toggle
       header.addEventListener('click', function() {
         const isExpanded = this.dataset.expanded === 'true';
         const lista = this.nextElementSibling;
@@ -218,11 +208,9 @@
       categoriesContainer.appendChild(categoriaDiv);
     });
 
-    // Atualiza totais
     totalLinksSpan.textContent = total;
     totalRodapeSpan.textContent = total;
 
-    // Estatísticas detalhadas (com Mega primeiro)
     const statsEntries = Object.entries(stats).sort((a, b) => {
       if (a[0] === 'Mega') return -1;
       if (b[0] === 'Mega') return 1;
@@ -235,7 +223,6 @@
     detalhesCategoriasSpan.innerHTML = statsHTML;
   }
 
-  // ---- Expandir / Recolher ----
   function expandirTodos() {
     document.querySelectorAll('.categoria-header').forEach(header => {
       const lista = header.nextElementSibling;
@@ -262,12 +249,10 @@
     });
   }
 
-  // ---- Inicialização ----
   function init() {
     const groups = processLinks(links);
     render(groups, '');
 
-    // Data atual
     const now = new Date();
     ultimaAtualizacaoSpan.textContent = now.toLocaleString('pt-BR', {
       day: '2-digit',
@@ -277,17 +262,14 @@
       minute: '2-digit'
     });
 
-    // Pesquisa
     searchInput.addEventListener('input', function() {
       render(groups, this.value);
     });
 
-    // Botões
     document.getElementById('expandirTodos').addEventListener('click', expandirTodos);
     document.getElementById('recolherTodos').addEventListener('click', recolherTodos);
   }
 
-  // Executa quando o DOM estiver pronto
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
