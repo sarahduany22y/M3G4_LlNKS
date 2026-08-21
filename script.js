@@ -18,6 +18,7 @@
     'cyberdrop.cr': { nome: 'CyberDrop', icone: '📂' },
   };
 
+  // ---- Detecção de categoria ----
   function detectCategory(url) {
     const lower = url.toLowerCase();
 
@@ -26,32 +27,41 @@
       return { nome: 'Erome', icone: '🎬', especial: 'erome' };
     }
 
+    // CDN Bunkr
     if (/cdn\d*\.bunkr\.ru/.test(lower)) {
       return { nome: 'CDN Bunkr MP4', icone: '🎥' };
     }
+    // Bunkr /a/
     if (/bunkr\.[^\/]+\/a\//.test(lower)) {
       return { nome: 'Bunkr Álbuns', icone: '📦' };
     }
+    // Bunkr /v/
     if (/bunkr\.[^\/]+\/v\//.test(lower)) {
       return { nome: 'Bunkr Vídeos', icone: '🎬' };
     }
+    // Bunkr /f/
     if (/bunkr\.[^\/]+\/f\//.test(lower)) {
       return { nome: 'Bunkr Arquivos', icone: '📄' };
     }
+    // Bunkr genérico
     if (/bunkr\.[^\/]+/.test(lower)) {
       return { nome: 'Bunkr (Genérico)', icone: '📦' };
     }
+    // MP4 direto
     if (lower.endsWith('.mp4')) {
       return { nome: 'Vídeos MP4', icone: '🎥' };
     }
+    // Domínios conhecidos
     for (const [domain, info] of Object.entries(CATEGORY_MAP)) {
       if (lower.includes(domain)) {
         return info;
       }
     }
+    // Outros
     return { nome: 'Outros', icone: '🌐' };
   }
 
+  // ---- Processamento dos links ----
   function processLinks(rawLinks) {
     const unique = [...new Set(rawLinks)];
     const groups = new Map();
@@ -59,20 +69,22 @@
       const cat = detectCategory(url);
       const key = cat.nome;
       if (!groups.has(key)) {
-        groups.set(key, { 
-          nome: key, 
-          icone: cat.icone, 
+        groups.set(key, {
+          nome: key,
+          icone: cat.icone,
           especial: cat.especial || null,
-          links: [] 
+          links: []
         });
       }
       groups.get(key).links.push(url);
     });
 
+    // Ordena os links dentro de cada categoria
     for (const [key, group] of groups) {
       group.links.sort((a, b) => a.localeCompare(b));
     }
 
+    // Ordena as categorias: Mega primeiro, depois alfabética
     const sortedGroups = Array.from(groups.entries())
       .sort((a, b) => {
         const nomeA = a[0];
@@ -86,6 +98,7 @@
     return sortedGroups;
   }
 
+  // ---- Renderização ----
   function render(groups, filterText = '') {
     categoriesContainer.innerHTML = '';
     let total = 0;
@@ -146,7 +159,7 @@
         const acaoDiv = document.createElement('div');
         acaoDiv.className = 'link-acao';
 
-        // Verifica se é Erome
+        // ---- Especial: Erome ----
         if (group.especial === 'erome') {
           const btn = document.createElement('button');
           btn.textContent = '🎬 Amador - Erome';
@@ -159,7 +172,7 @@
           btn.style.fontSize = '0.85rem';
           btn.addEventListener('click', function(e) {
             e.preventDefault();
-            // Abrir em nova janela pop-up maximizada (ou com tamanho grande)
+            // Abre em janela pop-up centralizada
             const width = 1200;
             const height = 800;
             const left = (window.screen.width - width) / 2;
@@ -169,6 +182,7 @@
           });
           acaoDiv.appendChild(btn);
         } else {
+          // Comportamento padrão: link "Abrir →"
           const linkA = document.createElement('a');
           linkA.href = url;
           linkA.target = '_blank';
@@ -182,6 +196,7 @@
         listaDiv.appendChild(card);
       });
 
+      // Toggle expandir/recolher
       header.addEventListener('click', function(e) {
         const isExpanded = this.dataset.expanded === 'true';
         const lista = this.nextElementSibling;
@@ -204,6 +219,7 @@
       categoriesContainer.appendChild(categoriaDiv);
     });
 
+    // Atualiza estatísticas
     totalLinksSpan.textContent = total;
     totalRodapeSpan.textContent = total;
 
@@ -219,6 +235,7 @@
     detalhesCategoriasSpan.innerHTML = statsHTML;
   }
 
+  // ---- Expandir / Recolher todos ----
   function expandirTodos() {
     document.querySelectorAll('.categoria-header').forEach(header => {
       const lista = header.nextElementSibling;
@@ -245,6 +262,7 @@
     });
   }
 
+  // ---- Inicialização ----
   function init() {
     if (typeof links === 'undefined' || !Array.isArray(links)) {
       console.error('Arquivo links.js não carregado ou variável "links" não encontrada.');
@@ -252,13 +270,23 @@
     }
     const groups = processLinks(links);
     render(groups, '');
-    const now = new Date();
-    ultimaAtualizacaoSpan.textContent = now.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
+    // Data de atualização
+    const now = new Date();
+    ultimaAtualizacaoSpan.textContent = now.toLocaleString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    // Evento de pesquisa
     searchInput.addEventListener('input', function() {
       render(groups, this.value);
     });
 
+    // Botões de expandir/recolher
     document.getElementById('expandirTodos').addEventListener('click', expandirTodos);
     document.getElementById('recolherTodos').addEventListener('click', recolherTodos);
   }
