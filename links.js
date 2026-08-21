@@ -207,5 +207,7 @@ const links = [
   "https://mega.nz/folder/56N1zQZY#WQxAbpY8N0Mi0HNelKR-gw",
   "https://mega.nz/folder/r45F1YRa#U9nm7iqA2p-ni5l_7HOpvA",
   "https://mega.nz/folder/LgIg3S6b#t3HcO5rC0Ywxl0rlWyUd0g",
+  "https://www.erome.com/a/gRQaS6PV,
+  "https://www.erome.com/a/bCfT8l5c",
   "https://mega.nz/folder/ImNB3bjK#Ivz2uQYrfr3WPEb9I_KUtw"
 ];
