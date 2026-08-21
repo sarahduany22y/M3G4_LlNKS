@@ -9,6 +9,21 @@
   const detalhesCategoriasSpan = document.getElementById('detalhesCategorias');
   const ultimaAtualizacaoSpan = document.getElementById('ultimaAtualizacao');
 
+  // ---- Verificação: a variável 'links' existe? ----
+  if (typeof links === 'undefined' || !Array.isArray(links)) {
+    console.error('ERRO: A variável "links" não está definida ou não é um array. Verifique o arquivo links.js.');
+    // Exibe mensagem amigável na tela
+    categoriesContainer.innerHTML = `
+      <div style="text-align:center; padding:40px; color:#f85149; background:#161b22; border-radius:12px; border:1px solid #f85149;">
+        <strong>⚠️ Erro ao carregar os links.</strong><br>
+        Certifique-se de que o arquivo <code>links.js</code> está presente e contém uma variável <code>links</code> com um array de URLs.
+      </div>
+    `;
+    return;
+  }
+
+  console.log(`✅ ${links.length} links carregados.`);
+
   // ---- Mapeamento de categorias ----
   const CATEGORY_MAP = {
     'mega.nz': { nome: 'Mega', icone: '📁' },
@@ -31,37 +46,30 @@
     if (/cdn\d*\.bunkr\.ru/.test(lower)) {
       return { nome: 'CDN Bunkr MP4', icone: '🎥' };
     }
-    // Bunkr /a/
     if (/bunkr\.[^\/]+\/a\//.test(lower)) {
       return { nome: 'Bunkr Álbuns', icone: '📦' };
     }
-    // Bunkr /v/
     if (/bunkr\.[^\/]+\/v\//.test(lower)) {
       return { nome: 'Bunkr Vídeos', icone: '🎬' };
     }
-    // Bunkr /f/
     if (/bunkr\.[^\/]+\/f\//.test(lower)) {
       return { nome: 'Bunkr Arquivos', icone: '📄' };
     }
-    // Bunkr genérico
     if (/bunkr\.[^\/]+/.test(lower)) {
       return { nome: 'Bunkr (Genérico)', icone: '📦' };
     }
-    // MP4 direto
     if (lower.endsWith('.mp4')) {
       return { nome: 'Vídeos MP4', icone: '🎥' };
     }
-    // Domínios conhecidos
     for (const [domain, info] of Object.entries(CATEGORY_MAP)) {
       if (lower.includes(domain)) {
         return info;
       }
     }
-    // Outros
     return { nome: 'Outros', icone: '🌐' };
   }
 
-  // ---- Processamento dos links ----
+  // ---- Processamento ----
   function processLinks(rawLinks) {
     const unique = [...new Set(rawLinks)];
     const groups = new Map();
@@ -79,12 +87,12 @@
       groups.get(key).links.push(url);
     });
 
-    // Ordena os links dentro de cada categoria
+    // Ordena links dentro de cada categoria
     for (const [key, group] of groups) {
       group.links.sort((a, b) => a.localeCompare(b));
     }
 
-    // Ordena as categorias: Mega primeiro, depois alfabética
+    // Ordena categorias: Mega primeiro, depois alfabético
     const sortedGroups = Array.from(groups.entries())
       .sort((a, b) => {
         const nomeA = a[0];
@@ -159,20 +167,12 @@
         const acaoDiv = document.createElement('div');
         acaoDiv.className = 'link-acao';
 
-        // ---- Especial: Erome ----
+        // Especial: Erome
         if (group.especial === 'erome') {
           const btn = document.createElement('button');
           btn.textContent = '🎬 Amador - Erome';
-          btn.style.background = '#21262d';
-          btn.style.border = '1px solid #30363d';
-          btn.style.color = '#c9d1d9';
-          btn.style.padding = '4px 12px';
-          btn.style.borderRadius = '6px';
-          btn.style.cursor = 'pointer';
-          btn.style.fontSize = '0.85rem';
           btn.addEventListener('click', function(e) {
             e.preventDefault();
-            // Abre em janela pop-up centralizada
             const width = 1200;
             const height = 800;
             const left = (window.screen.width - width) / 2;
@@ -182,7 +182,6 @@
           });
           acaoDiv.appendChild(btn);
         } else {
-          // Comportamento padrão: link "Abrir →"
           const linkA = document.createElement('a');
           linkA.href = url;
           linkA.target = '_blank';
@@ -196,8 +195,8 @@
         listaDiv.appendChild(card);
       });
 
-      // Toggle expandir/recolher
-      header.addEventListener('click', function(e) {
+      // Toggle
+      header.addEventListener('click', function() {
         const isExpanded = this.dataset.expanded === 'true';
         const lista = this.nextElementSibling;
         const seta = this.querySelector('.seta');
@@ -219,10 +218,11 @@
       categoriesContainer.appendChild(categoriaDiv);
     });
 
-    // Atualiza estatísticas
+    // Atualiza totais
     totalLinksSpan.textContent = total;
     totalRodapeSpan.textContent = total;
 
+    // Estatísticas detalhadas (com Mega primeiro)
     const statsEntries = Object.entries(stats).sort((a, b) => {
       if (a[0] === 'Mega') return -1;
       if (b[0] === 'Mega') return 1;
@@ -235,7 +235,7 @@
     detalhesCategoriasSpan.innerHTML = statsHTML;
   }
 
-  // ---- Expandir / Recolher todos ----
+  // ---- Expandir / Recolher ----
   function expandirTodos() {
     document.querySelectorAll('.categoria-header').forEach(header => {
       const lista = header.nextElementSibling;
@@ -264,14 +264,10 @@
 
   // ---- Inicialização ----
   function init() {
-    if (typeof links === 'undefined' || !Array.isArray(links)) {
-      console.error('Arquivo links.js não carregado ou variável "links" não encontrada.');
-      return;
-    }
     const groups = processLinks(links);
     render(groups, '');
 
-    // Data de atualização
+    // Data atual
     const now = new Date();
     ultimaAtualizacaoSpan.textContent = now.toLocaleString('pt-BR', {
       day: '2-digit',
@@ -281,16 +277,17 @@
       minute: '2-digit'
     });
 
-    // Evento de pesquisa
+    // Pesquisa
     searchInput.addEventListener('input', function() {
       render(groups, this.value);
     });
 
-    // Botões de expandir/recolher
+    // Botões
     document.getElementById('expandirTodos').addEventListener('click', expandirTodos);
     document.getElementById('recolherTodos').addEventListener('click', recolherTodos);
   }
 
+  // Executa quando o DOM estiver pronto
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
