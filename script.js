@@ -21,6 +21,11 @@
   function detectCategory(url) {
     const lower = url.toLowerCase();
 
+    // Erome (especial)
+    if (lower.includes('erome.com')) {
+      return { nome: 'Erome', icone: '🎬', especial: 'erome' };
+    }
+
     if (/cdn\d*\.bunkr\.ru/.test(lower)) {
       return { nome: 'CDN Bunkr MP4', icone: '🎥' };
     }
@@ -54,7 +59,12 @@
       const cat = detectCategory(url);
       const key = cat.nome;
       if (!groups.has(key)) {
-        groups.set(key, { nome: key, icone: cat.icone, links: [] });
+        groups.set(key, { 
+          nome: key, 
+          icone: cat.icone, 
+          especial: cat.especial || null,
+          links: [] 
+        });
       }
       groups.get(key).links.push(url);
     });
@@ -63,7 +73,6 @@
       group.links.sort((a, b) => a.localeCompare(b));
     }
 
-    // ⬇️ ORDENAÇÃO PERSONALIZADA: MEGA EM PRIMEIRO
     const sortedGroups = Array.from(groups.entries())
       .sort((a, b) => {
         const nomeA = a[0];
@@ -136,12 +145,37 @@
 
         const acaoDiv = document.createElement('div');
         acaoDiv.className = 'link-acao';
-        const linkA = document.createElement('a');
-        linkA.href = url;
-        linkA.target = '_blank';
-        linkA.rel = 'noopener noreferrer';
-        linkA.textContent = 'Abrir →';
-        acaoDiv.appendChild(linkA);
+
+        // Verifica se é Erome
+        if (group.especial === 'erome') {
+          const btn = document.createElement('button');
+          btn.textContent = '🎬 Amador - Erome';
+          btn.style.background = '#21262d';
+          btn.style.border = '1px solid #30363d';
+          btn.style.color = '#c9d1d9';
+          btn.style.padding = '4px 12px';
+          btn.style.borderRadius = '6px';
+          btn.style.cursor = 'pointer';
+          btn.style.fontSize = '0.85rem';
+          btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            // Abrir em nova janela pop-up maximizada (ou com tamanho grande)
+            const width = 1200;
+            const height = 800;
+            const left = (window.screen.width - width) / 2;
+            const top = (window.screen.height - height) / 2;
+            const params = `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`;
+            window.open(url, '_blank', params);
+          });
+          acaoDiv.appendChild(btn);
+        } else {
+          const linkA = document.createElement('a');
+          linkA.href = url;
+          linkA.target = '_blank';
+          linkA.rel = 'noopener noreferrer';
+          linkA.textContent = 'Abrir →';
+          acaoDiv.appendChild(linkA);
+        }
 
         card.appendChild(infoDiv);
         card.appendChild(acaoDiv);
