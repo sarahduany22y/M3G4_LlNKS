@@ -1,191 +1,49 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Página de acesso rápido aos links.">
-<title>Acesso aos Links</title>
-
-<style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
-body{
-    font-family:Arial,Helvetica,sans-serif;
-    background:linear-gradient(135deg,#0f172a,#1e293b);
-    color:#fff;
-    min-height:100vh;
-}
-
-.container{
-    width:90%;
-    max-width:700px;
-    margin:40px auto;
-}
-
-h1{
-    text-align:center;
-    font-size:40px;
-    margin-bottom:10px;
-}
-
-.subtitle{
-    text-align:center;
-    color:#cbd5e1;
-    margin-bottom:25px;
-}
-
-.notice{
-    background:#1e293b;
-    border:1px solid #3b82f6;
-    border-left:6px solid #3b82f6;
-    border-radius:12px;
-    padding:18px;
-    color:#e2e8f0;
-    line-height:1.6;
-    margin-bottom:30px;
-    text-align:center;
-}
-
-.link{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    text-decoration:none;
-    color:#fff;
-    background:#2563eb;
-    padding:18px 22px;
-    margin:12px 0;
-    border-radius:12px;
-    font-size:18px;
-    font-weight:bold;
-    transition:.25s;
-    box-shadow:0 5px 15px rgba(0,0,0,.25);
-}
-
-.link:hover{
-    background:#1d4ed8;
-    transform:translateY(-2px);
-}
-
-.arrow{
-    font-size:20px;
-}
-
-footer{
-    text-align:center;
-    margin:40px 0 20px;
-    color:#94a3b8;
-    font-size:14px;
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Central de Links</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
+  <div id="app">
+    <!-- Cabeçalho -->
+    <header>
+      <h1>🔗 Central de Links</h1>
+      <p class="aviso">🚀 Novos links são adicionados frequentemente.<br />Salve esta página nos favoritos e volte sempre para conferir as atualizações.</p>
 
-<div class="container">
+      <!-- Estatísticas -->
+      <div id="estatisticas">
+        <span class="total">Total: <strong id="totalLinks">0</strong></span>
+        <span id="detalhesCategorias"></span>
+      </div>
 
-<h1>🔗 Acesso aos Links</h1>
+      <!-- Pesquisa -->
+      <div class="pesquisa">
+        <input type="text" id="searchInput" placeholder="🔍 Pesquisar..." />
+      </div>
 
-<p class="subtitle">
-Selecione um dos links abaixo para ser redirecionado.
-</p>
+      <!-- Botões expandir/recolher -->
+      <div class="controles">
+        <button id="expandirTodos">▶ Expandir tudo</button>
+        <button id="recolherTodos">▼ Recolher tudo</button>
+      </div>
+    </header>
 
-<div class="notice">
-🚀 <strong>Novas atualizações em breve!</strong><br><br>
-Estamos organizando e adicionando novos links regularmente para facilitar o acesso.
-<br><br>
-<strong>Salve esta página e volte em breve para conferir as novidades.</strong>
-</div>
+    <!-- Container das categorias -->
+    <main id="categories"></main>
 
-<a class="link" href="https://mega.nz/folder/IzARDIqR#V9B56yZfWcB_UZ6Qbnj-yQ" target="_blank">
-<span>🔗 Acesso 01</span><span class="arrow">→</span>
-</a>
+    <!-- Rodapé -->
+    <footer>
+      <span>Última atualização: <strong id="ultimaAtualizacao"></strong></span>
+      <span>Total de links: <strong id="totalRodape">0</strong></span>
+      <span>Versão: <strong>1.0.0</strong></span>
+    </footer>
+  </div>
 
-<a class="link" href="https://mega.nz/folder/JQRikJRB#qJFP4NswLY-LNisfa6efQg" target="_blank">
-<span>🔗 Acesso 02</span><span class="arrow">→</span>
-</a>
-
-<a class="link" href="https://mega.nz/folder/JQRikJRB#qJFP4NswLY-LNisfa6efQg" target="_blank">
-<span>🔗 Acesso 03</span><span class="arrow">→</span>
-</a>
-
-<a class="link" href="https://mega.nz/folder/JQRikJRB#qJFP4NswLY-LNisfa6efQg" target="_blank">
-<span>🔗 Acesso 04</span><span class="arrow">→</span>
-</a>
-
-<a class="link" href="https://mega.nz/folder/JQRikJRB#qJFP4NswLY-LNisfa6efQg" target="_blank">
-<span>🔗 Acesso 05</span><span class="arrow">→</span>
-</a>
-
-<a class="link" href="https://mega.nz/folder/IRYUXLra#manvlRFRcBS1McLHkZPo4Q" target="_blank">
-<span>🔗 Acesso 06</span><span class="arrow">→</span>
-</a>
-
-<a class="link" href="https://mega.nz/folder/mqJA2QZa#en_7qlvQt7Hjcujs0hFljQ" target="_blank">
-<span>🔗 Acesso 07</span><span class="arrow">→</span>
-</a>
-
-<a class="link" href="https://mega.nz/folder/5cMwyLaR#bsl1t2WaDIJvVL7jXPQOeg" target="_blank">
-<span>🔗 Acesso 08</span><span class="arrow">→</span>
-</a>
-
-<a class="link" href="https://mega.nz/folder/UEN0lJZa#41Hx_j3nRw472HNoKuBvQw" target="_blank">
-<span>🔗 Acesso 09</span><span class="arrow">→</span>
-</a>
-
-<a class="link" href="https://mega.nz/folder/PWpjiDzb#90MdsckcbdCO4U0VUhxSBw" target="_blank">
-<span>🔗 Acesso 10</span><span class="arrow">→</span>
-</a>
-
-<a class="link" href="https://mega.nz/folder/bcFzzbQS#mPxl2yfgLRl122beUrVRAQ" target="_blank">
-<span>🔗 Acesso 11</span><span class="arrow">→</span>
-</a>
-
-<a class="link" href="https://mega.nz/folder/lARBCKCJ#Z9kiOGh20Yamrd9oho-PTQ" target="_blank">
-<span>🔗 Acesso 12</span><span class="arrow">→</span>
-</a>
-
-<a class="link" href="https://mega.nz/folder/ldQHWTZJ#RjRklSi5fKZ54-9MP7UWKA" target="_blank">
-<span>🔗 Acesso 13</span><span class="arrow">→</span>
-</a>
-
-<a class="link" href="https://mega.nz/folder/9UQElDJD#PFzLJqmFIJhOit8MOATMdw" target="_blank">
-<span>🔗 Acesso 14</span><span class="arrow">→</span>
-</a>
-
-<a class="link" href="https://mega.nz/folder/56N1zQZY#WQxAbpY8N0Mi0HNelKR-gw" target="_blank">
-<span>🔗 Acesso 15</span><span class="arrow">→</span>
-</a>
-
-<a class="link" href="https://mega.nz/folder/r45F1YRa#U9nm7iqA2p-ni5l_7HOpvA" target="_blank">
-<span>🔗 Acesso 16</span><span class="arrow">→</span>
-</a>
-
-<a class="link" href="https://mega.nz/folder/LgIg3S6b#t3HcO5rC0Ywxl0rlWyUd0g" target="_blank">
-<span>🔗 Acesso 17</span><span class="arrow">→</span>
-</a>
-
-<a class="link" href="https://mega.nz/folder/ImNB3bjK#Ivz2uQYrfr3WPEb9I_KUtw" target="_blank">
-<span>🔗 Acesso 18</span><span class="arrow">→</span>
-</a>
-
-<a class="link" href="https://mega.nz/folder/iIEQjCwB#B-quiLkriPRFS2AMYFdGbA" target="_blank">
-<span>🔗 Acesso 19</span><span class="arrow">→</span>
-</a>
-
-<a class="link" href="https://balbums.st/" target="_blank">
-<span>🔗 ALBUM 20</span><span class="arrow">→</span>
-</a>
-
-<footer>
-© 2026 • Todos os direitos reservados.
-</footer>
-
-</div>
-
+  <!-- Scripts -->
+  <script src="links.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
