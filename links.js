@@ -1,6 +1,6 @@
 console.log("links.js carregado!");
 
-const links = [
+window.links = [
   "https://bunkr.cr/a/yRwhMWEH",
   "https://bunkr.cr/a/lNOfzAge",
   "https://bunkr.cr/a/9Bbkqq8b",
@@ -214,4 +214,4 @@ const links = [
   "https://mega.nz/folder/ImNB3bjK#Ivz2uQYrfr3WPEb9I_KUtw"
 ];
 
-console.log("links carregado com " + links.length + " links.");
+console.log("links carregado com " + window.links.length + " links.");
