@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Organizador Automático de Links</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0d1117;
+      color: #c9d1d9;
+      padding: 30px;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      max-width: 1000px;
+      width: 100%;
+    }
+    h1 {
+      text-align: center;
+      color: #f0f6fc;
+      margin-bottom: 20px;
+    }
+    textarea {
+      width: 100%;
+      height: 300px;
+      background: #161b22;
+      color: #c9d1d9;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 14px;
+      font-family: 'Courier New', monospace;
+      resize: vertical;
+      outline: none;
+    }
+    textarea:focus {
+      border-color: #58a6ff;
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 16px 0;
+    }
+    button {
+      background: #21262d;
+      border: 1px solid #30363d;
+      color: #c9d1d9;
+      padding: 10px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.2s, border-color 0.2s;
+      font-weight: 500;
+    }
+    button:hover {
+      background: #30363d;
+      border-color: #58a6ff;
+    }
+    button.primary {
+      background: #238636;
+      border-color: #2ea043;
+    }
+    button.primary:hover {
+      background: #2ea043;
+    }
+    .output {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 16px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      max-height: 400px;
+      overflow: auto;
+    }
+    .status {
+      margin-top: 12px;
+      color: #8b949e;
+      font-size: 0.9rem;
+    }
+    .status strong {
+      color: #f0f6fc;
+    }
+    .copy-btn {
+      margin-top: 8px;
+    }
+    .footer {
+      margin-top: 20px;
+      text-align: center;
+      color: #484f58;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>🧩 Organizador Automático de Links</h1>
+  <p style="text-align:center; margin-bottom:10px; color:#8b949e;">
+    Cole seus links (bagunçados) abaixo, um por linha ou separados por vírgula/espaço.
+  </p>
+  <textarea id="inputLinks" placeholder="Cole aqui seus links...&#10;Exemplo:&#10;https://mega.nz/folder/abc, https://gofile.io/d/xyz&#10;https://bunkr.cr/a/..."></textarea>
+
+  <div class="actions">
+    <button class="primary" id="organizarBtn">🔧 Organizar</button>
+    <button id="limparBtn">🗑️ Limpar</button>
+    <button id="copiarBtn" class="copy-btn">📋 Copiar Código</button>
+  </div>
+
+  <div id="status" class="status">Aguardando links...</div>
+
+  <div class="output" id="outputCode">
+    // O código gerado aparecerá aqui.
+  </div>
+
+  <div class="footer">
+    Gerado automaticamente para o projeto Central de Links.
+  </div>
+</div>
+
+<script>
+  (function() {
+    const inputEl = document.getElementById('inputLinks');
+    const outputEl = document.getElementById('outputCode');
+    const statusEl = document.getElementById('status');
+    const organizarBtn = document.getElementById('organizarBtn');
+    const limparBtn = document.getElementById('limparBtn');
+    const copiarBtn = document.getElementById('copiarBtn');
+
+    // Função para extrair URLs de um texto bagunçado
+    function extrairUrls(texto) {
+      // Remove quebras de linha, vírgulas e espaços extras, e separa por qualquer caractere não-URL
+      // Usa regex para capturar URLs (http, https, etc.)
+      const regex = /https?:\/\/[^\s,;'"<>]+/g;
+      const matches = texto.match(regex);
+      if (!matches) return [];
+      // Limpa cada URL: remove aspas, vírgulas, espaços no início/fim
+      return matches.map(u => u.trim().replace(/^["']|["']$/g, '')).filter(u => u.length > 0);
+    }
+
+    function organizar() {
+      const texto = inputEl.value;
+      if (!texto.trim()) {
+        statusEl.innerHTML = '⚠️ Nenhum link encontrado. Cole alguns links primeiro.';
+        outputEl.textContent = '// Nenhum link para organizar.';
+        return;
+      }
+
+      const urls = extrairUrls(texto);
+      if (urls.length === 0) {
+        statusEl.innerHTML = '⚠️ Não foi possível extrair URLs válidas. Verifique o formato.';
+        outputEl.textContent = '// Nenhuma URL válida encontrada.';
+        return;
+      }
+
+      // Remover duplicatas (mantendo ordem)
+      const unique = [];
+      const seen = new Set();
+      for (const url of urls) {
+        if (!seen.has(url)) {
+          seen.add(url);
+          unique.push(url);
+        }
+      }
+
+      // Gerar código com formatação bonita
+      const linhas = unique.map(url => `  "${url}"`);
+      const codigo = `const links = [\n${linhas.join(',\n')}\n];`;
+
+      // Exibir
+      outputEl.textContent = codigo;
+      statusEl.innerHTML = `✅ <strong>${unique.length}</strong> links únicos organizados (de ${urls.length} extraídos). Duplicatas removidas: <strong>${urls.length - unique.length}</strong>.`;
+    }
+
+    function limpar() {
+      inputEl.value = '';
+      outputEl.textContent = '// O código gerado aparecerá aqui.';
+      statusEl.innerHTML = 'Aguardando links...';
+    }
+
+    function copiar() {
+      const codigo = outputEl.textContent;
+      if (!codigo || codigo.startsWith('//')) {
+        statusEl.innerHTML = '⚠️ Nenhum código para copiar. Organize os links primeiro.';
+        return;
+      }
+      navigator.clipboard.writeText(codigo).then(() => {
+        statusEl.innerHTML = '✅ Código copiado para a área de transferência! Cole no seu links.js.';
+      }).catch(() => {
+        // Fallback: selecionar o texto e usar o comando copy
+        const range = document.createRange();
+        range.selectNode(outputEl);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+        document.execCommand('copy');
+        statusEl.innerHTML = '✅ Código copiado (fallback). Cole no seu links.js.';
+      });
+    }
+
+    // Eventos
+    organizarBtn.addEventListener('click', organizar);
+    limparBtn.addEventListener('click', limpar);
+    copiarBtn.addEventListener('click', copiar);
+
+    // Extra: organizar automaticamente ao colar (opcional, mas pode ser ativado)
+    // inputEl.addEventListener('paste', function() { setTimeout(organizar, 100); });
+
+    // Exemplo inicial com alguns links de teste
+    inputEl.value = `https://mega.nz/folder/3PxVzAoC#55fQMQ16aNPmZNClLGOq5g
+https://gofile.io/d/t6K2bS
+https://bunkr.cr/a/yRwhMWEH
+https://pixeldrain.com/l/oyAc2wrJ
+https://mega.nz/folder/3PxVzAoC#55fQMQ16aNPmZNClLGOq5g  (duplicado)
+https://www.erome.com/a/gRQaS6PV`;
+
+    // Organiza automaticamente ao carregar
+    organizar();
+  })();
+</script>
+</body>
+</html>
